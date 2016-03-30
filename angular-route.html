@@ -72,7 +72,7 @@
 <div id="container">
 	<a href="#/edit/{{news.id}}">编辑</a>
 	<h2>{{news.title}}</h2>
-	<p>发布时间:{{news.data}}</p>
+	<p>发布时间:{{news.date}}</p>
 	<p>正文：{{news.content}}</p>
 </div>
  </script>
@@ -168,7 +168,7 @@ app.controller('AddController',function($scope,$location){
 			id:newsList.length+1,
 			title:$scope.title,
 			content:$scope.content,
-			date: new Date()
+			date: new Date().format("yyyy-MM-dd hh:mm:ss")
 		});
 		$location.path('list');
 	}
