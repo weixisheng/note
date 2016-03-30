@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Angular路由例子-发布新闻</title>
+	<script src="js/angular.min.js"></script>
+	<script src="js/angular-route.js"></script>
+	<style type="text/css">
+		
+		#left{
+			float: left;
+			width: 13%;
+			border-right: 1px solid red;
+		}
+		#right{
+			width: 80%;
+			float: left;
+			padding: 10px;
+		}
+		ul,li{
+			list-style: none;
+		}
+		.newsTitle,.newsContent{
+			display: inline-block;
+			width: 100%;
+		}
+		.newsTitle li,.newsContent li{
+			display: inline-block;
+			width: 20%;
+			
+		}
+	</style>
+</head>
+<body>
+	<div ng-app="NewsPub">
+		<!--展示页面模板-->
+	<script type="text/ng-template" id="list.html">
+	<ul class="newsTitle">
+		<li>编号</li>
+		<li>标题</li>
+		<li>内容</li>
+		<li>时间</li>
+	</ul>
+	<ul ng-repeat="news in newsList" class="newsContent">
+		<li>{{news.id}}</li>
+		<li><a href="#/detail/{{news.id}}">{{news.title}}</a></li>
+		<li>{{news.content}}</li>
+		<li>{{news.date}}</li>
+	</ul>
+	</script>
+<!--添加新闻模板-->
+<script type="text/ng-template" id="add.html">
+	<h2>添加新闻</h2>
+	<label>标题：<label>
+	<input type="text" ng-model="title"><br>
+  <label>内容：</label>
+  <textarea ng-model="content" style="width:200px;height:150px;vertical-align:top;"></textarea>
+  <br><button ng-click="add()">提交</button>
+</script>
+<!--编辑新闻模板-->
+<script type="text/ng-template" id="edit.html">
+	<h2>编辑新闻</h2>
+	<label>标题：<label>
+	<input type="text" ng-model="news.title"><br>
+  <label>内容：</label>
+  <textarea ng-model="news.content" style="width:200px;height:150px;vertical-align:top;"></textarea>
+  <br><button ng-click="update()">提交</button>
+</script>
+<!--详情列表模板-->
+<script type="text/ng-template" id="detail.html">
+<a href="#/list">返回列表</a>
+<div id="container">
+	<a href="#/edit/{{news.id}}">编辑</a>
+	<h2>{{news.title}}</h2>
+	<p>发布时间:{{news.data}}</p>
+	<p>正文：{{news.content}}</p>
+</div>
+ </script>
+ <!--首页-->
+ <div id="page">
+ 	<div id="left">
+ 		<ul>
+ 			<li><a href="#/list">新闻列表</a></li>
+ 			<li><a href="#/add">发布新闻</a></li>
+ 		</ul>
+ 	</div>
+ 	<div id="right" ng-view>哈哈哈</div>
+ </div>
+	</div>
+	<script type="text/javascript">
+	  Date.prototype.format = function(format)   
+{   
+   var o = {   
+     "M+" : this.getMonth()+1, //month   
+     "d+" : this.getDate(),    //day   
+     "h+" : this.getHours(),   //hour   
+     "m+" : this.getMinutes(), //minute   
+     "s+" : this.getSeconds(), //second   
+     "q+" : Math.floor((this.getMonth()+3)/3), //quarter   
+     "S" : this.getMilliseconds() //millisecond   
+   }   
+   if(/(y+)/.test(format)) format=format.replace(RegExp.$1,   
+     (this.getFullYear()+"").substr(4 - RegExp.$1.length));   
+   for(var k in o)if(new RegExp("("+ k +")").test(format))   
+     format = format.replace(RegExp.$1,   
+       RegExp.$1.length==1 ? o[k] :    
+         ("00"+ o[k]).substr((""+ o[k]).length));   
+   return format;   
+} 
+var app = angular.module("NewsPub",['ngRoute']);
+
+function routeConfig($routeProvider){
+	$routeProvider.when('/',{
+		controller:'ListController',
+		templateUrl:'list.html'
+	}).
+	when('/detail/:id',{
+		controller:'DetailController',
+		templateUrl:'detail.html'
+	}).
+	when('/edit/:id',{
+		controller:'EditController',
+		templateUrl:'edit.html'
+	}).
+	when('/list',{
+		controller:'ListController',
+		templateUrl:'list.html'
+	}).
+	when('/add',{
+		controller:'AddController',
+		templateUrl:'add.html'
+	}).
+	otherwise({
+		redirectTo:'/'
+	});
+}
+
+app.config(routeConfig);
+
+var newsList = [
+{
+	id:1,
+	title:'title111',
+	content:'content1111',
+	date:new Date().format("yyyy-MM-dd hh:mm:ss")
+},
+{
+	id:2,
+	title:'title222',
+	content:'content2222',
+	date:new Date().format("yyyy-MM-dd hh:mm:ss")
+}
+];
+
+app.controller('ListController',function($scope){
+	$scope.newsList = newsList;
+});
+
+app.controller("DetailController",function($scope,$routeParams){
+	$scope.news = newsList[$routeParams.id-1];
+});
+
+app.controller('AddController',function($scope,$location){
+	$scope.title='';
+	$scope.content= '';
+	$scope.add = function(){
+		newsList.push({
+			id:newsList.length+1,
+			title:$scope.title,
+			content:$scope.content,
+			date: new Date()
+		});
+		$location.path('list');
+	}
+});
+
+app.controller('EditController',function($scope,$routeParams,$location){
+	$scope.news = newsList[$routeParams.id -1];
+	$scope.update = function(){
+		newsList[$routeParams.id-1]= $scope.news;
+		$location.path('list');
+	}
+});
+	</script>
+</body>
+</html>
